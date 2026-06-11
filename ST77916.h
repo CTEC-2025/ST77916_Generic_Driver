@@ -10,17 +10,43 @@
 
 #include "DEFS.h"
 
+#define ST77916_VERSION_MAJOR_U8       (0u)
+#define ST77916_VERSION_MINOR_U8       (2u)
+#define ST77916_VERSION_PATCH_U8       (0u)
+
 #define ST77916_SWRESET_U8             (0x01u)
 #define ST77916_SLPOUT_U8              (0x11u)
 #define ST77916_DISPON_U8              (0x29u)
+#define ST77916_CASET_U8               (0x2Au)
+#define ST77916_RASET_U8               (0x2Bu)
+#define ST77916_RAMWR_U8               (0x2Cu)
+#define ST77916_MADCTL_U8              (0x36u)
 
 #define ST77916_RESET_LOW_U8           (0u)
 #define ST77916_RESET_HIGH_U8          (1u)
+
+#define ST77916_ROTATION_0_U8          (0u)
+#define ST77916_ROTATION_90_U8         (1u)
+#define ST77916_ROTATION_180_U8        (2u)
+#define ST77916_ROTATION_270_U8        (3u)
+#define ST77916_ROTATION_COUNT_U8      (4u)
+
+#define ST77916_MADCTL_0_U8            (0x00u)
+#define ST77916_MADCTL_90_U8           (0x60u)
+#define ST77916_MADCTL_180_U8          (0xC0u)
+#define ST77916_MADCTL_270_U8          (0xA0u)
 
 #define ST77916_DELAY_PULSE_MS_U32     (5u)
 #define ST77916_DELAY_RESET_MS_U32     (20u)
 #define ST77916_DELAY_READY_MS_U32     (120u)
 #define ST77916_DELAY_DISPLAY_MS_U32   (20u)
+
+#define ST77916_BYTE_BYTES_U16         (1u)
+#define ST77916_WORD_BYTES_U16         (2u)
+#define ST77916_ADDR_BYTES_U16         (4u)
+#define ST77916_FILL_PIXELS_U16        (32u)
+#define ST77916_FILL_BYTES_U16         (64u)
+#define ST77916_LOW_BYTE_MASK_U16      (0x00FFu)
 
 typedef void (*ST77916_write_cmd_t)(U8 command_u8);
 typedef void (*ST77916_write_data_t)(const U8 * data_pu8, U16 length_u16);
@@ -45,5 +71,17 @@ typedef struct
 
 void ST77916_init(ST77916_st * lcd_pst);
 void ST77916_reset(ST77916_st * lcd_pst);
+void ST77916_set_rotation(ST77916_st * lcd_pst, U8 rotation_u8);
+void ST77916_set_window(ST77916_st * lcd_pst,
+                        U16 x_start_u16,
+                        U16 y_start_u16,
+                        U16 x_end_u16,
+                        U16 y_end_u16);
+void ST77916_write_pixels(ST77916_st * lcd_pst,
+                          const U8 * pixels_pu8,
+                          U16 length_u16);
+void ST77916_fill_colour(ST77916_st * lcd_pst,
+                         U16 colour_u16,
+                         U32 pixel_count_u32);
 
 #endif
