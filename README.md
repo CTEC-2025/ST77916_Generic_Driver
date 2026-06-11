@@ -9,6 +9,8 @@ The driver is built around callback functions supplied by the host application, 
 - `DEFS.h` - common fixed-width type aliases and boolean definitions.
 - `ST77916.h` - public driver types, command values, and declarations.
 - `ST77916.c` - reset, initialization, window, rotation, and pixel writes.
+- `examples/` - adapter examples for Arduino, PIC, AVR, ATtiny, SAMD,
+  and STM32 projects.
 - `.gitattributes` - line-ending normalization for Git.
 - `.editorconfig` - shared editor formatting defaults.
 - `.gitignore` - common generated files ignored for C and embedded projects.
@@ -54,6 +56,20 @@ ST77916_fill_colour(&lcd_st, 0xF800u, 123200u);
 Rotation can be set with `ST77916_set_rotation`. Valid rotation values are
 `ST77916_ROTATION_0_U8`, `ST77916_ROTATION_90_U8`,
 `ST77916_ROTATION_180_U8`, and `ST77916_ROTATION_270_U8`.
+
+## Examples
+
+Example adapter code is available in `examples/` for:
+
+- Arduino
+- PIC
+- AVR
+- ATtiny
+- SAMD
+- STM32
+
+The examples are starting points. Update pin definitions, SPI instances, clock
+setup, and project include paths to match your hardware and toolchain.
 
 ## Notes
 

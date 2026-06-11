@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added example adapters for Arduino, PIC, AVR, ATtiny, SAMD, and STM32.
+- Updated README with examples folder information.
+
 ## v0.2.0
 
 - Added version macros.
