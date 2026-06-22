@@ -10,6 +10,19 @@
 static void ST77916_write_u16(U8 * data_pu8, U16 value_u16);
 static U8 ST77916_get_madctl(U8 rotation_u8);
 static U8 ST77916_bus_ready(const ST77916_st * lcd_pst);
+static S16 ST77916_abs_s16(S16 value_s16);
+static void ST77916_circle_points(ST77916_st * lcd_pst,
+                                  S16 x_pos_s16,
+                                  S16 y_pos_s16,
+                                  S16 x_offset_s16,
+                                  S16 y_offset_s16,
+                                  U16 colour_u16);
+static void ST77916_circle_spans(ST77916_st * lcd_pst,
+                                 S16 x_pos_s16,
+                                 S16 y_pos_s16,
+                                 S16 x_offset_s16,
+                                 S16 y_offset_s16,
+                                 U16 colour_u16);
 
 static void ST77916_write_u16(U8 * data_pu8, U16 value_u16)
 {
@@ -63,6 +76,102 @@ static U8 ST77916_bus_ready(const ST77916_st * lcd_pst)
     }
 
     return ready_u8;
+}
+
+static S16 ST77916_abs_s16(S16 value_s16)
+{
+    S16 result_s16;
+
+    result_s16 = value_s16;
+
+    if (value_s16 < 0)
+    {
+        result_s16 = (S16)(0 - value_s16);
+    }
+
+    return result_s16;
+}
+
+static void ST77916_circle_points(ST77916_st * lcd_pst,
+                                  S16 x_pos_s16,
+                                  S16 y_pos_s16,
+                                  S16 x_offset_s16,
+                                  S16 y_offset_s16,
+                                  U16 colour_u16)
+{
+    ST77916_draw_pixel(
+        lcd_pst,
+        (U16)(x_pos_s16 + x_offset_s16),
+        (U16)(y_pos_s16 + y_offset_s16),
+        colour_u16);
+    ST77916_draw_pixel(
+        lcd_pst,
+        (U16)(x_pos_s16 - x_offset_s16),
+        (U16)(y_pos_s16 + y_offset_s16),
+        colour_u16);
+    ST77916_draw_pixel(
+        lcd_pst,
+        (U16)(x_pos_s16 + x_offset_s16),
+        (U16)(y_pos_s16 - y_offset_s16),
+        colour_u16);
+    ST77916_draw_pixel(
+        lcd_pst,
+        (U16)(x_pos_s16 - x_offset_s16),
+        (U16)(y_pos_s16 - y_offset_s16),
+        colour_u16);
+    ST77916_draw_pixel(
+        lcd_pst,
+        (U16)(x_pos_s16 + y_offset_s16),
+        (U16)(y_pos_s16 + x_offset_s16),
+        colour_u16);
+    ST77916_draw_pixel(
+        lcd_pst,
+        (U16)(x_pos_s16 - y_offset_s16),
+        (U16)(y_pos_s16 + x_offset_s16),
+        colour_u16);
+    ST77916_draw_pixel(
+        lcd_pst,
+        (U16)(x_pos_s16 + y_offset_s16),
+        (U16)(y_pos_s16 - x_offset_s16),
+        colour_u16);
+    ST77916_draw_pixel(
+        lcd_pst,
+        (U16)(x_pos_s16 - y_offset_s16),
+        (U16)(y_pos_s16 - x_offset_s16),
+        colour_u16);
+}
+
+static void ST77916_circle_spans(ST77916_st * lcd_pst,
+                                 S16 x_pos_s16,
+                                 S16 y_pos_s16,
+                                 S16 x_offset_s16,
+                                 S16 y_offset_s16,
+                                 U16 colour_u16)
+{
+    ST77916_draw_vline(
+        lcd_pst,
+        (S16)(x_pos_s16 + x_offset_s16),
+        (S16)(y_pos_s16 - y_offset_s16),
+        (U16)((y_offset_s16 * 2) + 1),
+        colour_u16);
+    ST77916_draw_vline(
+        lcd_pst,
+        (S16)(x_pos_s16 - x_offset_s16),
+        (S16)(y_pos_s16 - y_offset_s16),
+        (U16)((y_offset_s16 * 2) + 1),
+        colour_u16);
+    ST77916_draw_vline(
+        lcd_pst,
+        (S16)(x_pos_s16 + y_offset_s16),
+        (S16)(y_pos_s16 - x_offset_s16),
+        (U16)((x_offset_s16 * 2) + 1),
+        colour_u16);
+    ST77916_draw_vline(
+        lcd_pst,
+        (S16)(x_pos_s16 - y_offset_s16),
+        (S16)(y_pos_s16 - x_offset_s16),
+        (U16)((x_offset_s16 * 2) + 1),
+        colour_u16);
 }
 
 void ST77916_reset(ST77916_st * lcd_pst)
@@ -199,6 +308,395 @@ void ST77916_fill_colour(ST77916_st * lcd_pst,
                 (U16)(chunk_pixels_u16 * ST77916_WORD_BYTES_U16));
 
             pixel_count_u32 -= (U32)chunk_pixels_u16;
+        }
+    }
+}
+
+void ST77916_fill_screen(ST77916_st * lcd_pst, U16 colour_u16)
+{
+    U32 pixel_count_u32;
+    U16 x_end_u16;
+    U16 y_end_u16;
+
+    if (ST77916_bus_ready(lcd_pst) == TRUE)
+    {
+        if ((lcd_pst->width_u16 > 0u) && (lcd_pst->height_u16 > 0u))
+        {
+            x_end_u16 = lcd_pst->width_u16 - 1u;
+            y_end_u16 = lcd_pst->height_u16 - 1u;
+            pixel_count_u32 = (U32)lcd_pst->width_u16;
+            pixel_count_u32 *= (U32)lcd_pst->height_u16;
+
+            ST77916_set_window(lcd_pst, 0u, 0u, x_end_u16, y_end_u16);
+            ST77916_fill_colour(lcd_pst, colour_u16, pixel_count_u32);
+        }
+    }
+}
+
+void ST77916_draw_pixel(ST77916_st * lcd_pst,
+                        U16 x_pos_u16,
+                        U16 y_pos_u16,
+                        U16 colour_u16)
+{
+    if (ST77916_bus_ready(lcd_pst) == TRUE)
+    {
+        if ((x_pos_u16 < lcd_pst->width_u16) &&
+            (y_pos_u16 < lcd_pst->height_u16))
+        {
+            ST77916_set_window(
+                lcd_pst,
+                x_pos_u16,
+                y_pos_u16,
+                x_pos_u16,
+                y_pos_u16);
+            ST77916_fill_colour(lcd_pst, colour_u16, 1u);
+        }
+    }
+}
+
+void ST77916_fill_rect(ST77916_st * lcd_pst,
+                       U16 x_pos_u16,
+                       U16 y_pos_u16,
+                       U16 width_u16,
+                       U16 height_u16,
+                       U16 colour_u16)
+{
+    U32 x_end_u32;
+    U32 y_end_u32;
+    U16 x_end_u16;
+    U16 y_end_u16;
+    U16 draw_width_u16;
+    U16 draw_height_u16;
+    U32 pixel_count_u32;
+
+    if (ST77916_bus_ready(lcd_pst) == TRUE)
+    {
+        if ((width_u16 > 0u) && (height_u16 > 0u) &&
+            (x_pos_u16 < lcd_pst->width_u16) &&
+            (y_pos_u16 < lcd_pst->height_u16))
+        {
+            x_end_u32 = (U32)x_pos_u16 + (U32)width_u16 - 1u;
+            y_end_u32 = (U32)y_pos_u16 + (U32)height_u16 - 1u;
+
+            if (x_end_u32 >= (U32)lcd_pst->width_u16)
+            {
+                x_end_u16 = lcd_pst->width_u16 - 1u;
+            }
+            else
+            {
+                x_end_u16 = (U16)x_end_u32;
+            }
+
+            if (y_end_u32 >= (U32)lcd_pst->height_u16)
+            {
+                y_end_u16 = lcd_pst->height_u16 - 1u;
+            }
+            else
+            {
+                y_end_u16 = (U16)y_end_u32;
+            }
+
+            draw_width_u16 = x_end_u16 - x_pos_u16 + 1u;
+            draw_height_u16 = y_end_u16 - y_pos_u16 + 1u;
+            pixel_count_u32 = (U32)draw_width_u16;
+            pixel_count_u32 *= (U32)draw_height_u16;
+
+            ST77916_set_window(
+                lcd_pst,
+                x_pos_u16,
+                y_pos_u16,
+                x_end_u16,
+                y_end_u16);
+            ST77916_fill_colour(lcd_pst, colour_u16, pixel_count_u32);
+        }
+    }
+}
+
+void ST77916_draw_hline(ST77916_st * lcd_pst,
+                        S16 x_pos_s16,
+                        S16 y_pos_s16,
+                        U16 length_u16,
+                        U16 colour_u16)
+{
+    S16 x_start_s16;
+    S16 x_end_s16;
+    U16 width_u16;
+
+    if (ST77916_bus_ready(lcd_pst) == TRUE)
+    {
+        if ((length_u16 > 0u) &&
+            (y_pos_s16 >= 0) &&
+            (y_pos_s16 < (S16)lcd_pst->height_u16))
+        {
+            x_start_s16 = x_pos_s16;
+            x_end_s16 = (S16)(x_pos_s16 + (S16)length_u16 - 1);
+
+            if ((x_end_s16 >= 0) &&
+                (x_start_s16 < (S16)lcd_pst->width_u16))
+            {
+                if (x_start_s16 < 0)
+                {
+                    x_start_s16 = 0;
+                }
+
+                if (x_end_s16 >= (S16)lcd_pst->width_u16)
+                {
+                    x_end_s16 = (S16)lcd_pst->width_u16 - 1;
+                }
+
+                width_u16 = (U16)(x_end_s16 - x_start_s16 + 1);
+                ST77916_fill_rect(
+                    lcd_pst,
+                    (U16)x_start_s16,
+                    (U16)y_pos_s16,
+                    width_u16,
+                    1u,
+                    colour_u16);
+            }
+        }
+    }
+}
+
+void ST77916_draw_vline(ST77916_st * lcd_pst,
+                        S16 x_pos_s16,
+                        S16 y_pos_s16,
+                        U16 length_u16,
+                        U16 colour_u16)
+{
+    S16 y_start_s16;
+    S16 y_end_s16;
+    U16 height_u16;
+
+    if (ST77916_bus_ready(lcd_pst) == TRUE)
+    {
+        if ((length_u16 > 0u) &&
+            (x_pos_s16 >= 0) &&
+            (x_pos_s16 < (S16)lcd_pst->width_u16))
+        {
+            y_start_s16 = y_pos_s16;
+            y_end_s16 = (S16)(y_pos_s16 + (S16)length_u16 - 1);
+
+            if ((y_end_s16 >= 0) &&
+                (y_start_s16 < (S16)lcd_pst->height_u16))
+            {
+                if (y_start_s16 < 0)
+                {
+                    y_start_s16 = 0;
+                }
+
+                if (y_end_s16 >= (S16)lcd_pst->height_u16)
+                {
+                    y_end_s16 = (S16)lcd_pst->height_u16 - 1;
+                }
+
+                height_u16 = (U16)(y_end_s16 - y_start_s16 + 1);
+                ST77916_fill_rect(
+                    lcd_pst,
+                    (U16)x_pos_s16,
+                    (U16)y_start_s16,
+                    1u,
+                    height_u16,
+                    colour_u16);
+            }
+        }
+    }
+}
+
+void ST77916_draw_line(ST77916_st * lcd_pst,
+                       S16 x_start_s16,
+                       S16 y_start_s16,
+                       S16 x_end_s16,
+                       S16 y_end_s16,
+                       U16 colour_u16)
+{
+    S16 dx_s16;
+    S16 dy_s16;
+    S16 step_x_s16;
+    S16 step_y_s16;
+    S16 error_s16;
+    S16 twice_error_s16;
+    U8 complete_u8;
+
+    complete_u8 = FALSE;
+
+    if (ST77916_bus_ready(lcd_pst) == TRUE)
+    {
+        dx_s16 = ST77916_abs_s16((S16)(x_end_s16 - x_start_s16));
+        dy_s16 = (S16)(0 - ST77916_abs_s16(
+            (S16)(y_end_s16 - y_start_s16)));
+        step_x_s16 = -1;
+        step_y_s16 = -1;
+
+        if (x_start_s16 < x_end_s16)
+        {
+            step_x_s16 = 1;
+        }
+
+        if (y_start_s16 < y_end_s16)
+        {
+            step_y_s16 = 1;
+        }
+
+        error_s16 = (S16)(dx_s16 + dy_s16);
+
+        while (complete_u8 == FALSE)
+        {
+            if ((x_start_s16 >= 0) && (y_start_s16 >= 0))
+            {
+                ST77916_draw_pixel(
+                    lcd_pst,
+                    (U16)x_start_s16,
+                    (U16)y_start_s16,
+                    colour_u16);
+            }
+
+            if ((x_start_s16 == x_end_s16) &&
+                (y_start_s16 == y_end_s16))
+            {
+                complete_u8 = TRUE;
+            }
+            else
+            {
+                twice_error_s16 = (S16)(error_s16 * 2);
+
+                if (twice_error_s16 >= dy_s16)
+                {
+                    error_s16 = (S16)(error_s16 + dy_s16);
+                    x_start_s16 = (S16)(x_start_s16 + step_x_s16);
+                }
+
+                if (twice_error_s16 <= dx_s16)
+                {
+                    error_s16 = (S16)(error_s16 + dx_s16);
+                    y_start_s16 = (S16)(y_start_s16 + step_y_s16);
+                }
+            }
+        }
+    }
+}
+
+void ST77916_draw_rect(ST77916_st * lcd_pst,
+                       S16 x_pos_s16,
+                       S16 y_pos_s16,
+                       U16 width_u16,
+                       U16 height_u16,
+                       U16 colour_u16)
+{
+    if ((width_u16 > 0u) && (height_u16 > 0u))
+    {
+        ST77916_draw_hline(
+            lcd_pst,
+            x_pos_s16,
+            y_pos_s16,
+            width_u16,
+            colour_u16);
+        ST77916_draw_hline(
+            lcd_pst,
+            x_pos_s16,
+            (S16)(y_pos_s16 + (S16)height_u16 - 1),
+            width_u16,
+            colour_u16);
+        ST77916_draw_vline(
+            lcd_pst,
+            x_pos_s16,
+            y_pos_s16,
+            height_u16,
+            colour_u16);
+        ST77916_draw_vline(
+            lcd_pst,
+            (S16)(x_pos_s16 + (S16)width_u16 - 1),
+            y_pos_s16,
+            height_u16,
+            colour_u16);
+    }
+}
+
+void ST77916_draw_circle(ST77916_st * lcd_pst,
+                         S16 x_pos_s16,
+                         S16 y_pos_s16,
+                         U16 radius_u16,
+                         U16 colour_u16)
+{
+    S16 x_offset_s16;
+    S16 y_offset_s16;
+    S16 error_s16;
+
+    if (ST77916_bus_ready(lcd_pst) == TRUE)
+    {
+        x_offset_s16 = 0;
+        y_offset_s16 = (S16)radius_u16;
+        error_s16 = (S16)(3 - ((S16)radius_u16 * 2));
+
+        while (x_offset_s16 <= y_offset_s16)
+        {
+            ST77916_circle_points(
+                lcd_pst,
+                x_pos_s16,
+                y_pos_s16,
+                x_offset_s16,
+                y_offset_s16,
+                colour_u16);
+
+            if (error_s16 < 0)
+            {
+                error_s16 = (S16)(
+                    error_s16 + (x_offset_s16 * 4) + 6);
+            }
+            else
+            {
+                error_s16 = (S16)(
+                    error_s16 +
+                    ((x_offset_s16 - y_offset_s16) * 4) +
+                    10);
+                y_offset_s16--;
+            }
+
+            x_offset_s16++;
+        }
+    }
+}
+
+void ST77916_fill_circle(ST77916_st * lcd_pst,
+                         S16 x_pos_s16,
+                         S16 y_pos_s16,
+                         U16 radius_u16,
+                         U16 colour_u16)
+{
+    S16 x_offset_s16;
+    S16 y_offset_s16;
+    S16 error_s16;
+
+    if (ST77916_bus_ready(lcd_pst) == TRUE)
+    {
+        x_offset_s16 = 0;
+        y_offset_s16 = (S16)radius_u16;
+        error_s16 = (S16)(3 - ((S16)radius_u16 * 2));
+
+        while (x_offset_s16 <= y_offset_s16)
+        {
+            ST77916_circle_spans(
+                lcd_pst,
+                x_pos_s16,
+                y_pos_s16,
+                x_offset_s16,
+                y_offset_s16,
+                colour_u16);
+
+            if (error_s16 < 0)
+            {
+                error_s16 = (S16)(
+                    error_s16 + (x_offset_s16 * 4) + 6);
+            }
+            else
+            {
+                error_s16 = (S16)(
+                    error_s16 +
+                    ((x_offset_s16 - y_offset_s16) * 4) +
+                    10);
+                y_offset_s16--;
+            }
+
+            x_offset_s16++;
         }
     }
 }

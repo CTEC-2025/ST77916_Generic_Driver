@@ -9,6 +9,7 @@ The driver is built around callback functions supplied by the host application, 
 - `DEFS.h` - common fixed-width type aliases and boolean definitions.
 - `ST77916.h` - public driver types, command values, and declarations.
 - `ST77916.c` - reset, initialization, window, rotation, and pixel writes.
+- `docs/API.md` - public API reference.
 - `examples/` - adapter examples for Arduino, PIC, AVR, ATtiny, SAMD,
   and STM32 projects.
 - `.gitattributes` - line-ending normalization for Git.
@@ -53,6 +54,18 @@ ST77916_set_window(&lcd_st, 0u, 0u, 319u, 384u);
 ST77916_fill_colour(&lcd_st, 0xF800u, 123200u);
 ```
 
+Higher-level helpers are available for common drawing tasks:
+
+```c
+ST77916_fill_screen(&lcd_st, 0x0000u);
+ST77916_draw_pixel(&lcd_st, 10u, 10u, 0xFFFFu);
+ST77916_fill_rect(&lcd_st, 20u, 20u, 80u, 40u, 0x07E0u);
+ST77916_draw_rect(&lcd_st, 18, 18, 84u, 44u, 0xFFFFu);
+ST77916_draw_line(&lcd_st, 0, 0, 319, 384, 0xF800u);
+ST77916_draw_circle(&lcd_st, 160, 192, 40u, 0x001Fu);
+ST77916_fill_circle(&lcd_st, 160, 192, 20u, 0xFFE0u);
+```
+
 Rotation can be set with `ST77916_set_rotation`. Valid rotation values are
 `ST77916_ROTATION_0_U8`, `ST77916_ROTATION_90_U8`,
 `ST77916_ROTATION_180_U8`, and `ST77916_ROTATION_270_U8`.
@@ -71,11 +84,16 @@ Example adapter code is available in `examples/` for:
 The examples are starting points. Update pin definitions, SPI instances, clock
 setup, and project include paths to match your hardware and toolchain.
 
+## Documentation
+
+See `docs/API.md` for the public API reference.
+
 ## Notes
 
-This repository contains a minimal initialization flow and basic RGB565 drawing
-helpers. Panel-specific command tables can be added as the target hardware
-requirements are confirmed.
+This repository contains a minimal initialization flow and RGB565 drawing
+helpers for pixels, lines, rectangles, and circles. Rectangle, line, and circle
+drawing clips to the configured display dimensions. Panel-specific command
+tables can be added as the target hardware requirements are confirmed.
 
 The source is arranged to support MISRA C:2025-oriented review: numeric command values are named, callbacks are checked before use, and source lines are kept short.
 

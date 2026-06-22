@@ -111,6 +111,10 @@ void app_display_init(void)
     lcd_st.rotation_u8 = ST77916_ROTATION_0_U8;
 
     ST77916_init(&lcd_st);
-    ST77916_set_window(&lcd_st, 0u, 0u, 319u, 384u);
-    ST77916_fill_colour(&lcd_st, 0xFFFFu, ST77916_PIXEL_COUNT_U32);
+    ST77916_fill_screen(&lcd_st, 0x0000u);
+    ST77916_fill_rect(&lcd_st, 20u, 20u, 80u, 40u, 0xFFFFu);
+    ST77916_draw_rect(&lcd_st, 18, 18, 84u, 44u, 0x07E0u);
+    ST77916_draw_line(&lcd_st, 0, 384, 319, 0, 0xF800u);
+    ST77916_draw_circle(&lcd_st, 160, 192, 48u, 0x001Fu);
+    ST77916_fill_circle(&lcd_st, 160, 192, 24u, 0xFFE0u);
 }

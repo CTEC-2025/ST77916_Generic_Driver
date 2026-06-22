@@ -1,130 +1,177 @@
-/*****************************************************************************
- * Module: ST77916
- * File: ST77916.h
- * Description: Public interface for the ST77916 display driver.
- * Notes: Written for embedded C use with MISRA C:2025 review in mind.
- *****************************************************************************/
+# API Reference
 
-#ifndef ST77916_H
-#define ST77916_H
+This reference covers the public ST77916 driver functions. All drawing helpers
+use RGB565 colour values.
 
-#include "DEFS.h"
+## Setup
 
-#define ST77916_VERSION_MAJOR_U8       (0u)
-#define ST77916_VERSION_MINOR_U8       (3u)
-#define ST77916_VERSION_PATCH_U8       (0u)
+### `ST77916_init`
 
-#define ST77916_SWRESET_U8             (0x01u)
-#define ST77916_SLPOUT_U8              (0x11u)
-#define ST77916_DISPON_U8              (0x29u)
-#define ST77916_CASET_U8               (0x2Au)
-#define ST77916_RASET_U8               (0x2Bu)
-#define ST77916_RAMWR_U8               (0x2Cu)
-#define ST77916_MADCTL_U8              (0x36u)
+Initializes the display using the configured bus callbacks. The function resets
+the panel, applies the configured rotation, exits sleep mode, and turns the
+display on.
 
-#define ST77916_RESET_LOW_U8           (0u)
-#define ST77916_RESET_HIGH_U8          (1u)
-
-#define ST77916_ROTATION_0_U8          (0u)
-#define ST77916_ROTATION_90_U8         (1u)
-#define ST77916_ROTATION_180_U8        (2u)
-#define ST77916_ROTATION_270_U8        (3u)
-#define ST77916_ROTATION_COUNT_U8      (4u)
-
-#define ST77916_MADCTL_0_U8            (0x00u)
-#define ST77916_MADCTL_90_U8           (0x60u)
-#define ST77916_MADCTL_180_U8          (0xC0u)
-#define ST77916_MADCTL_270_U8          (0xA0u)
-
-#define ST77916_DELAY_PULSE_MS_U32     (5u)
-#define ST77916_DELAY_RESET_MS_U32     (20u)
-#define ST77916_DELAY_READY_MS_U32     (120u)
-#define ST77916_DELAY_DISPLAY_MS_U32   (20u)
-
-#define ST77916_BYTE_BYTES_U16         (1u)
-#define ST77916_WORD_BYTES_U16         (2u)
-#define ST77916_ADDR_BYTES_U16         (4u)
-#define ST77916_FILL_PIXELS_U16        (32u)
-#define ST77916_FILL_BYTES_U16         (64u)
-#define ST77916_LOW_BYTE_MASK_U16      (0x00FFu)
-
-typedef void (*ST77916_write_cmd_t)(U8 command_u8);
-typedef void (*ST77916_write_data_t)(const U8 * data_pu8, U16 length_u16);
-typedef void (*ST77916_delay_ms_t)(U32 delay_ms_u32);
-typedef void (*ST77916_reset_pin_t)(U8 level_u8);
-
-typedef struct
-{
-    ST77916_write_cmd_t write_cmd;
-    ST77916_write_data_t write_data;
-    ST77916_delay_ms_t delay_ms;
-    ST77916_reset_pin_t reset_pin;
-} ST77916_bus_st;
-
-typedef struct
-{
-    ST77916_bus_st bus_st;
-    U16 width_u16;
-    U16 height_u16;
-    U8 rotation_u8;
-} ST77916_st;
-
+```c
 void ST77916_init(ST77916_st * lcd_pst);
+```
+
+### `ST77916_reset`
+
+Resets the display. If `reset_pin` is provided, the hardware reset sequence is
+used. Otherwise, the software reset command is sent.
+
+```c
 void ST77916_reset(ST77916_st * lcd_pst);
+```
+
+### `ST77916_set_rotation`
+
+Sets the panel memory-access rotation. Valid values are
+`ST77916_ROTATION_0_U8`, `ST77916_ROTATION_90_U8`,
+`ST77916_ROTATION_180_U8`, and `ST77916_ROTATION_270_U8`.
+
+```c
 void ST77916_set_rotation(ST77916_st * lcd_pst, U8 rotation_u8);
+```
+
+## Low-Level Drawing
+
+### `ST77916_set_window`
+
+Selects the rectangular display memory area used by the next pixel write.
+
+```c
 void ST77916_set_window(ST77916_st * lcd_pst,
                         U16 x_start_u16,
                         U16 y_start_u16,
                         U16 x_end_u16,
                         U16 y_end_u16);
+```
+
+### `ST77916_write_pixels`
+
+Writes raw RGB565 pixel bytes into the currently selected memory area.
+
+```c
 void ST77916_write_pixels(ST77916_st * lcd_pst,
                           const U8 * pixels_pu8,
                           U16 length_u16);
+```
+
+### `ST77916_fill_colour`
+
+Writes one RGB565 colour repeatedly into the currently selected memory area.
+
+```c
 void ST77916_fill_colour(ST77916_st * lcd_pst,
                          U16 colour_u16,
                          U32 pixel_count_u32);
+```
+
+## Drawing Helpers
+
+### `ST77916_fill_screen`
+
+Fills the whole configured display area.
+
+```c
 void ST77916_fill_screen(ST77916_st * lcd_pst, U16 colour_u16);
+```
+
+### `ST77916_draw_pixel`
+
+Draws one pixel. Coordinates outside the configured display are ignored.
+
+```c
 void ST77916_draw_pixel(ST77916_st * lcd_pst,
                         U16 x_pos_u16,
                         U16 y_pos_u16,
                         U16 colour_u16);
+```
+
+### `ST77916_fill_rect`
+
+Fills a rectangle. The rectangle is clipped to the configured display size.
+
+```c
 void ST77916_fill_rect(ST77916_st * lcd_pst,
                        U16 x_pos_u16,
                        U16 y_pos_u16,
                        U16 width_u16,
                        U16 height_u16,
                        U16 colour_u16);
+```
+
+### `ST77916_draw_hline`
+
+Draws a horizontal line. The line is clipped to the configured display size.
+
+```c
 void ST77916_draw_hline(ST77916_st * lcd_pst,
                         S16 x_pos_s16,
                         S16 y_pos_s16,
                         U16 length_u16,
                         U16 colour_u16);
+```
+
+### `ST77916_draw_vline`
+
+Draws a vertical line. The line is clipped to the configured display size.
+
+```c
 void ST77916_draw_vline(ST77916_st * lcd_pst,
                         S16 x_pos_s16,
                         S16 y_pos_s16,
                         U16 length_u16,
                         U16 colour_u16);
+```
+
+### `ST77916_draw_line`
+
+Draws a line between two points. Pixels outside the display are ignored.
+
+```c
 void ST77916_draw_line(ST77916_st * lcd_pst,
                        S16 x_start_s16,
                        S16 y_start_s16,
                        S16 x_end_s16,
                        S16 y_end_s16,
                        U16 colour_u16);
+```
+
+### `ST77916_draw_rect`
+
+Draws a rectangle outline using horizontal and vertical lines.
+
+```c
 void ST77916_draw_rect(ST77916_st * lcd_pst,
                        S16 x_pos_s16,
                        S16 y_pos_s16,
                        U16 width_u16,
                        U16 height_u16,
                        U16 colour_u16);
+```
+
+### `ST77916_draw_circle`
+
+Draws a circle outline. Pixels outside the display are ignored.
+
+```c
 void ST77916_draw_circle(ST77916_st * lcd_pst,
                          S16 x_pos_s16,
                          S16 y_pos_s16,
                          U16 radius_u16,
                          U16 colour_u16);
+```
+
+### `ST77916_fill_circle`
+
+Draws a filled circle using clipped vertical spans.
+
+```c
 void ST77916_fill_circle(ST77916_st * lcd_pst,
                          S16 x_pos_s16,
                          S16 y_pos_s16,
                          U16 radius_u16,
                          U16 colour_u16);
-
-#endif
+```

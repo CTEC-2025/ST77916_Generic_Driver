@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+- Added horizontal, vertical, and diagonal line drawing helpers.
+- Added rectangle outline drawing.
+- Added circle outline and filled-circle drawing helpers.
+- Added screen fill, single-pixel, and clipped rectangle drawing helpers.
 - Added example adapters for Arduino, PIC, AVR, ATtiny, SAMD, and STM32.
+- Added public API reference documentation.
 - Updated README with examples folder information.
 
 ## v0.2.0
