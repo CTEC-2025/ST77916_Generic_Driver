@@ -11,7 +11,7 @@
 #include "DEFS.h"
 
 #define ST77916_VERSION_MAJOR_U8       (0u)
-#define ST77916_VERSION_MINOR_U8       (3u)
+#define ST77916_VERSION_MINOR_U8       (4u)
 #define ST77916_VERSION_PATCH_U8       (0u)
 
 #define ST77916_SWRESET_U8             (0x01u)
@@ -48,6 +48,22 @@
 #define ST77916_FILL_BYTES_U16         (64u)
 #define ST77916_LOW_BYTE_MASK_U16      (0x00FFu)
 
+#define ST77916_RED_MASK_U8            (0xF8u)
+#define ST77916_GREEN_MASK_U8          (0xFCu)
+#define ST77916_BLUE_MASK_U8           (0xF8u)
+#define ST77916_RED_SHIFT_U8           (8u)
+#define ST77916_GREEN_SHIFT_U8         (3u)
+#define ST77916_BLUE_SHIFT_U8          (3u)
+
+#define ST77916_COLOUR_BLACK_U16       (0x0000u)
+#define ST77916_COLOUR_WHITE_U16       (0xFFFFu)
+#define ST77916_COLOUR_RED_U16         (0xF800u)
+#define ST77916_COLOUR_GREEN_U16       (0x07E0u)
+#define ST77916_COLOUR_BLUE_U16        (0x001Fu)
+#define ST77916_COLOUR_YELLOW_U16      (0xFFE0u)
+#define ST77916_COLOUR_CYAN_U16        (0x07FFu)
+#define ST77916_COLOUR_MAGENTA_U16     (0xF81Fu)
+
 typedef void (*ST77916_write_cmd_t)(U8 command_u8);
 typedef void (*ST77916_write_data_t)(const U8 * data_pu8, U16 length_u16);
 typedef void (*ST77916_delay_ms_t)(U32 delay_ms_u32);
@@ -71,6 +87,7 @@ typedef struct
 
 void ST77916_init(ST77916_st * lcd_pst);
 void ST77916_reset(ST77916_st * lcd_pst);
+U16 ST77916_rgb565(U8 red_u8, U8 green_u8, U8 blue_u8);
 void ST77916_set_rotation(ST77916_st * lcd_pst, U8 rotation_u8);
 void ST77916_set_window(ST77916_st * lcd_pst,
                         U16 x_start_u16,

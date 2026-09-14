@@ -10,6 +10,9 @@ The driver is built around callback functions supplied by the host application, 
 - `ST77916.h` - public driver types, command values, and declarations.
 - `ST77916.c` - reset, initialization, window, rotation, and pixel writes.
 - `docs/API.md` - public API reference.
+- `docs/QUICKSTART.md` - first-use guide for common setups.
+- `docs/PORTING.md` - guidance for adding platform adapters.
+- `ports/` - optional Arduino and STM32 HAL convenience adapters.
 - `examples/` - adapter examples for Arduino, PIC, AVR, ATtiny, SAMD,
   and STM32 projects.
 - `.gitattributes` - line-ending normalization for Git.
@@ -51,19 +54,22 @@ For simple test output, fill the current memory-write area with one colour:
 
 ```c
 ST77916_set_window(&lcd_st, 0u, 0u, 319u, 384u);
-ST77916_fill_colour(&lcd_st, 0xF800u, 123200u);
+ST77916_fill_colour(&lcd_st, ST77916_COLOUR_RED_U16, 123200u);
 ```
 
 Higher-level helpers are available for common drawing tasks:
 
 ```c
-ST77916_fill_screen(&lcd_st, 0x0000u);
-ST77916_draw_pixel(&lcd_st, 10u, 10u, 0xFFFFu);
-ST77916_fill_rect(&lcd_st, 20u, 20u, 80u, 40u, 0x07E0u);
-ST77916_draw_rect(&lcd_st, 18, 18, 84u, 44u, 0xFFFFu);
-ST77916_draw_line(&lcd_st, 0, 0, 319, 384, 0xF800u);
-ST77916_draw_circle(&lcd_st, 160, 192, 40u, 0x001Fu);
-ST77916_fill_circle(&lcd_st, 160, 192, 20u, 0xFFE0u);
+ST77916_fill_screen(&lcd_st, ST77916_COLOUR_BLACK_U16);
+ST77916_draw_pixel(&lcd_st, 10u, 10u, ST77916_COLOUR_WHITE_U16);
+ST77916_fill_rect(&lcd_st, 20u, 20u, 80u, 40u,
+                  ST77916_COLOUR_GREEN_U16);
+ST77916_draw_rect(&lcd_st, 18, 18, 84u, 44u,
+                  ST77916_COLOUR_WHITE_U16);
+ST77916_draw_line(&lcd_st, 0, 0, 319, 384, ST77916_COLOUR_RED_U16);
+ST77916_draw_circle(&lcd_st, 160, 192, 40u, ST77916_COLOUR_BLUE_U16);
+ST77916_fill_circle(&lcd_st, 160, 192, 20u,
+                    ST77916_COLOUR_YELLOW_U16);
 ```
 
 Rotation can be set with `ST77916_set_rotation`. Valid rotation values are
@@ -86,7 +92,9 @@ setup, and project include paths to match your hardware and toolchain.
 
 ## Documentation
 
-See `docs/API.md` for the public API reference.
+- `docs/QUICKSTART.md` - start here if you are wiring up a display.
+- `docs/API.md` - public API reference.
+- `docs/PORTING.md` - notes for creating a new MCU adapter.
 
 ## Notes
 

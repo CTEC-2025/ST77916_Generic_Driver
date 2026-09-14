@@ -201,6 +201,20 @@ void ST77916_reset(ST77916_st * lcd_pst)
     }
 }
 
+U16 ST77916_rgb565(U8 red_u8, U8 green_u8, U8 blue_u8)
+{
+    U16 colour_u16;
+
+    colour_u16 = (U16)((U16)(red_u8 & ST77916_RED_MASK_U8) <<
+        ST77916_RED_SHIFT_U8);
+    colour_u16 |= (U16)((U16)(green_u8 & ST77916_GREEN_MASK_U8) <<
+        ST77916_GREEN_SHIFT_U8);
+    colour_u16 |= (U16)((U16)(blue_u8 & ST77916_BLUE_MASK_U8) >>
+        ST77916_BLUE_SHIFT_U8);
+
+    return colour_u16;
+}
+
 void ST77916_init(ST77916_st * lcd_pst)
 {
     if (lcd_pst != NULL)

@@ -74,12 +74,17 @@ void setup(void)
     lcd_st.rotation_u8 = ST77916_ROTATION_0_U8;
 
     ST77916_init(&lcd_st);
-    ST77916_fill_screen(&lcd_st, 0x0000u);
-    ST77916_fill_rect(&lcd_st, 20u, 20u, 80u, 40u, 0xF800u);
-    ST77916_draw_rect(&lcd_st, 18, 18, 84u, 44u, 0xFFFFu);
-    ST77916_draw_line(&lcd_st, 0, 0, 319, 384, 0x07E0u);
-    ST77916_draw_circle(&lcd_st, 160, 192, 48u, 0x001Fu);
-    ST77916_fill_circle(&lcd_st, 160, 192, 24u, 0xFFE0u);
+    ST77916_fill_screen(&lcd_st, ST77916_COLOUR_BLACK_U16);
+    ST77916_fill_rect(&lcd_st, 20u, 20u, 80u, 40u,
+                      ST77916_COLOUR_RED_U16);
+    ST77916_draw_rect(&lcd_st, 18, 18, 84u, 44u,
+                      ST77916_COLOUR_WHITE_U16);
+    ST77916_draw_line(&lcd_st, 0, 0, 319, 384,
+                      ST77916_COLOUR_GREEN_U16);
+    ST77916_draw_circle(&lcd_st, 160, 192, 48u,
+                        ST77916_COLOUR_BLUE_U16);
+    ST77916_fill_circle(&lcd_st, 160, 192, 24u,
+                        ST77916_COLOUR_YELLOW_U16);
 }
 
 void loop(void)

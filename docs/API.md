@@ -3,6 +3,27 @@
 This reference covers the public ST77916 driver functions. All drawing helpers
 use RGB565 colour values.
 
+## Colours
+
+The header provides common RGB565 colour constants:
+
+- `ST77916_COLOUR_BLACK_U16`
+- `ST77916_COLOUR_WHITE_U16`
+- `ST77916_COLOUR_RED_U16`
+- `ST77916_COLOUR_GREEN_U16`
+- `ST77916_COLOUR_BLUE_U16`
+- `ST77916_COLOUR_YELLOW_U16`
+- `ST77916_COLOUR_CYAN_U16`
+- `ST77916_COLOUR_MAGENTA_U16`
+
+### `ST77916_rgb565`
+
+Converts 8-bit red, green, and blue values into one RGB565 colour value.
+
+```c
+U16 ST77916_rgb565(U8 red_u8, U8 green_u8, U8 blue_u8);
+```
+
 ## Setup
 
 ### `ST77916_init`

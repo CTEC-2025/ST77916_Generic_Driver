@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  core-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile core driver
+        run: gcc -std=c99 -Wall -Wextra -Werror -c ST77916.c -o ST77916.o
+
+      - name: Check source line length
+        run: |
+          awk 'length($0) > 80 { print FILENAME ":" FNR ":" length($0); bad=1 }
+          END { exit bad }' DEFS.h ST77916.h ST77916.c

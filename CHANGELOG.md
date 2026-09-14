@@ -1,7 +1,11 @@
 # Changelog
 
-## Unreleased
+## v0.4.0
 
+- Added RGB565 colour constants and an `ST77916_rgb565` helper.
+- Added Arduino and STM32 HAL port adapter layers.
+- Added quick-start and porting documentation.
+- Added GitHub Actions CI for the core driver.
 - Added horizontal, vertical, and diagonal line drawing helpers.
 - Added rectangle outline drawing.
 - Added circle outline and filled-circle drawing helpers.
