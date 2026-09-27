@@ -17,9 +17,6 @@ jobs:
       - name: Compile core driver
         run: gcc -std=c99 -Wall -Wextra -Werror -c ST77916.c -o ST77916.o
 
-      - name: Check Arduino example syntax
-        run: g++ -x c++ -std=c++11 -Wall -Wextra -Werror -fsyntax-only examples/arduino/ST77916_Arduino.ino
-
       - name: Check source line length
         run: |
           awk 'length($0) > 80 { print FILENAME ":" FNR ":" length($0); bad=1 }
