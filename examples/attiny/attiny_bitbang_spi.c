@@ -1,10 +1,18 @@
 #include <avr/io.h>
+#ifndef F_CPU
+#define F_CPU                          (8000000UL)
+#endif
 #include <util/delay.h>
 #include "../../ST77916.h"
 
 #define ST77916_WIDTH_U16              (320u)
 #define ST77916_HEIGHT_U16             (385u)
-#define ST77916_PIXEL_COUNT_U32        (123200u)
+
+static const U8 demo_bitmap_2x2_au8[8] =
+{
+    0xF8u, 0x00u, 0x07u, 0xE0u,
+    0x00u, 0x1Fu, 0xFFu, 0xFFu
+};
 
 #define ST77916_PORT                   PORTB
 #define ST77916_DDR                    DDRB
@@ -110,16 +118,18 @@ void app_display_init(void)
     lcd_st.height_u16 = ST77916_HEIGHT_U16;
     lcd_st.rotation_u8 = ST77916_ROTATION_0_U8;
 
-    ST77916_init(&lcd_st);
+    if (ST77916_init_ex(&lcd_st) != ST77916_STATUS_OK)
+    {
+        return;
+    }
+
     ST77916_fill_screen(&lcd_st, ST77916_COLOUR_BLACK_U16);
-    ST77916_fill_rect(&lcd_st, 20u, 20u, 80u, 40u,
-                      ST77916_COLOUR_WHITE_U16);
-    ST77916_draw_rect(&lcd_st, 18, 18, 84u, 44u,
-                      ST77916_COLOUR_GREEN_U16);
-    ST77916_draw_line(&lcd_st, 0, 384, 319, 0,
-                      ST77916_COLOUR_RED_U16);
-    ST77916_draw_circle(&lcd_st, 160, 192, 48u,
-                        ST77916_COLOUR_BLUE_U16);
-    ST77916_fill_circle(&lcd_st, 160, 192, 24u,
-                        ST77916_COLOUR_YELLOW_U16);
+    (void)ST77916_draw_bitmap(&lcd_st, 10, 10, 2u, 2u,
+                              demo_bitmap_2x2_au8);
+    (void)ST77916_draw_string(&lcd_st, 20, 10, "ST77916",
+                              ST77916_COLOUR_WHITE_U16,
+                              ST77916_COLOUR_BLACK_U16);
+    (void)ST77916_draw_string(&lcd_st, 20, 24, "ATTINY",
+                              ST77916_COLOUR_GREEN_U16,
+                              ST77916_COLOUR_BLACK_U16);
 }
