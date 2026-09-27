@@ -9,9 +9,10 @@
 #define ST77916_H
 
 #include "DEFS.h"
+#include "ST77916_CFG.h"
 
 #define ST77916_VERSION_MAJOR_U8       (0u)
-#define ST77916_VERSION_MINOR_U8       (4u)
+#define ST77916_VERSION_MINOR_U8       (5u)
 #define ST77916_VERSION_PATCH_U8       (0u)
 
 #define ST77916_SWRESET_U8             (0x01u)
@@ -44,8 +45,8 @@
 #define ST77916_BYTE_BYTES_U16         (1u)
 #define ST77916_WORD_BYTES_U16         (2u)
 #define ST77916_ADDR_BYTES_U16         (4u)
-#define ST77916_FILL_PIXELS_U16        (32u)
-#define ST77916_FILL_BYTES_U16         (64u)
+#define ST77916_FILL_PIXELS_U16        ST77916_CFG_FILL_PIXELS_U16
+#define ST77916_FILL_BYTES_U16         (ST77916_FILL_PIXELS_U16 * 2u)
 #define ST77916_LOW_BYTE_MASK_U16      (0x00FFu)
 
 #define ST77916_RED_MASK_U8            (0xF8u)
@@ -69,6 +70,15 @@ typedef void (*ST77916_write_data_t)(const U8 * data_pu8, U16 length_u16);
 typedef void (*ST77916_delay_ms_t)(U32 delay_ms_u32);
 typedef void (*ST77916_reset_pin_t)(U8 level_u8);
 
+typedef enum
+{
+    ST77916_STATUS_OK = 0,
+    ST77916_STATUS_NULL,
+    ST77916_STATUS_BUS,
+    ST77916_STATUS_BOUNDS,
+    ST77916_STATUS_PARAM
+} ST77916_status_e;
+
 typedef struct
 {
     ST77916_write_cmd_t write_cmd;
@@ -88,6 +98,51 @@ typedef struct
 void ST77916_init(ST77916_st * lcd_pst);
 void ST77916_reset(ST77916_st * lcd_pst);
 U16 ST77916_rgb565(U8 red_u8, U8 green_u8, U8 blue_u8);
+ST77916_status_e ST77916_init_ex(ST77916_st * lcd_pst);
+ST77916_status_e ST77916_reset_ex(ST77916_st * lcd_pst);
+ST77916_status_e ST77916_set_rotation_ex(ST77916_st * lcd_pst,
+                                          U8 rotation_u8);
+ST77916_status_e ST77916_set_window_ex(ST77916_st * lcd_pst,
+                                       U16 x_start_u16,
+                                       U16 y_start_u16,
+                                       U16 x_end_u16,
+                                       U16 y_end_u16);
+ST77916_status_e ST77916_write_pixels_ex(ST77916_st * lcd_pst,
+                                         const U8 * pixels_pu8,
+                                         U16 length_u16);
+ST77916_status_e ST77916_fill_colour_ex(ST77916_st * lcd_pst,
+                                        U16 colour_u16,
+                                        U32 pixel_count_u32);
+ST77916_status_e ST77916_fill_screen_ex(ST77916_st * lcd_pst,
+                                        U16 colour_u16);
+ST77916_status_e ST77916_draw_pixel_ex(ST77916_st * lcd_pst,
+                                       U16 x_pos_u16,
+                                       U16 y_pos_u16,
+                                       U16 colour_u16);
+ST77916_status_e ST77916_fill_rect_ex(ST77916_st * lcd_pst,
+                                      U16 x_pos_u16,
+                                      U16 y_pos_u16,
+                                      U16 width_u16,
+                                      U16 height_u16,
+                                      U16 colour_u16);
+ST77916_status_e ST77916_draw_bitmap(ST77916_st * lcd_pst,
+                                     S16 x_pos_s16,
+                                     S16 y_pos_s16,
+                                     U16 width_u16,
+                                     U16 height_u16,
+                                     const U8 * pixels_pu8);
+ST77916_status_e ST77916_draw_char(ST77916_st * lcd_pst,
+                                   S16 x_pos_s16,
+                                   S16 y_pos_s16,
+                                   char character_c,
+                                   U16 fg_colour_u16,
+                                   U16 bg_colour_u16);
+ST77916_status_e ST77916_draw_string(ST77916_st * lcd_pst,
+                                     S16 x_pos_s16,
+                                     S16 y_pos_s16,
+                                     const char * text_pc,
+                                     U16 fg_colour_u16,
+                                     U16 bg_colour_u16);
 void ST77916_set_rotation(ST77916_st * lcd_pst, U8 rotation_u8);
 void ST77916_set_window(ST77916_st * lcd_pst,
                         U16 x_start_u16,

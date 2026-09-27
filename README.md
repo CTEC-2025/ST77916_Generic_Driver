@@ -7,6 +7,7 @@ The driver is built around callback functions supplied by the host application, 
 ## Repository Contents
 
 - `DEFS.h` - common fixed-width type aliases and boolean definitions.
+- `ST77916_CFG.h` - build-time defaults for display and font settings.
 - `ST77916.h` - public driver types, command values, and declarations.
 - `ST77916.c` - reset, initialization, window, rotation, and pixel writes.
 - `docs/API.md` - public API reference.
@@ -70,11 +71,17 @@ ST77916_draw_line(&lcd_st, 0, 0, 319, 384, ST77916_COLOUR_RED_U16);
 ST77916_draw_circle(&lcd_st, 160, 192, 40u, ST77916_COLOUR_BLUE_U16);
 ST77916_fill_circle(&lcd_st, 160, 192, 20u,
                     ST77916_COLOUR_YELLOW_U16);
+ST77916_draw_string(&lcd_st, 10, 80, "ST77916",
+                    ST77916_COLOUR_WHITE_U16,
+                    ST77916_COLOUR_BLACK_U16);
 ```
 
 Rotation can be set with `ST77916_set_rotation`. Valid rotation values are
 `ST77916_ROTATION_0_U8`, `ST77916_ROTATION_90_U8`,
 `ST77916_ROTATION_180_U8`, and `ST77916_ROTATION_270_U8`.
+
+Status-returning variants are available for code that needs error handling.
+These functions use the `_ex` suffix, for example `ST77916_init_ex`.
 
 ## Examples
 
@@ -99,9 +106,10 @@ setup, and project include paths to match your hardware and toolchain.
 ## Notes
 
 This repository contains a minimal initialization flow and RGB565 drawing
-helpers for pixels, lines, rectangles, and circles. Rectangle, line, and circle
-drawing clips to the configured display dimensions. Panel-specific command
-tables can be added as the target hardware requirements are confirmed.
+helpers for pixels, bitmaps, text, lines, rectangles, and circles. Rectangle,
+line, bitmap, and circle drawing clips to the configured display dimensions.
+Panel-specific command tables can be added as the target hardware requirements
+are confirmed.
 
 The source is arranged to support MISRA C:2025-oriented review: numeric command values are named, callbacks are checked before use, and source lines are kept short.
 

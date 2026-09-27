@@ -8,6 +8,7 @@ screen test.
 Add these files to your project:
 
 - `DEFS.h`
+- `ST77916_CFG.h`
 - `ST77916.h`
 - `ST77916.c`
 

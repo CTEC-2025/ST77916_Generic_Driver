@@ -20,4 +20,4 @@ jobs:
       - name: Check source line length
         run: |
           awk 'length($0) > 80 { print FILENAME ":" FNR ":" length($0); bad=1 }
-          END { exit bad }' DEFS.h ST77916.h ST77916.c
+          END { exit bad }' DEFS.h ST77916_CFG.h ST77916.h ST77916.c

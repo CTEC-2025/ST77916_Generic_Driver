@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.0
+
+- Added `ST77916_CFG.h` build-time defaults.
+- Added status return codes and `_ex` status-returning APIs.
+- Added clipped RGB565 bitmap drawing.
+- Added built-in 5x7 character and string drawing.
+
 ## v0.4.0
 
 - Added RGB565 colour constants and an `ST77916_rgb565` helper.
